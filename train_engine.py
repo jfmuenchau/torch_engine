@@ -8,7 +8,7 @@ from tqdm import tqdm
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def train_step(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy,
-               optimizer:torch.optim, device:torch.device = device, show_batch=False):
+               optimizer:torch.optim, epoch:int, device:torch.device = device, hide_batch=False):
 
     model.to(device)
     model.train()
@@ -16,12 +16,14 @@ def train_step(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, lo
     
     train_loss, train_acc = 0,0
 
-    if show_batch:
-        pbar=tqdm(total=len(train_dataloader))
-    else:
-        pass
-
-    for batch,(X,y) in enumerate(train_dataloader):
+    p_bar=tqdm(iterable=enumerate(train_dataloader),
+               total=len(train_dataloader),
+               desc=f"Training Epoch: {epoch}",
+               disable=hide_batch,
+               position=0,
+               leave=True)
+    
+    for batch,(X,y) in p_bar:
         X, y = X.to(device), y.to(device)
         batch+=1
 
@@ -39,15 +41,8 @@ def train_step(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, lo
         train_loss += loss
         train_acc += acc
 
-        if show_batch:
-            pbar.update(1)
-        else:
-            pass
-
-    if show_batch:
-        pbar.close()
-    else:
-        pass
+        p_bar.set_postfix({"train_loss":train_loss.item() / (batch), "train_acc":train_acc.item() / (batch)})
+        
 
     train_loss /= len(train_dataloader)
     train_acc /= len(train_dataloader)
@@ -55,7 +50,7 @@ def train_step(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, lo
     return train_loss.item(), train_acc.item()
 
 def test_step(model:nn.Module, test_dataloader:torch.utils.data.DataLoader, loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy,
-              device:torch.device = device):
+              epoch:int, device:torch.device = device, hide_batch=False):
 
     model.to(device)
     model.eval()
@@ -63,8 +58,16 @@ def test_step(model:nn.Module, test_dataloader:torch.utils.data.DataLoader, loss
     
     test_loss, test_acc = 0,0
 
-    for X,y in test_dataloader:
+    p_bar=tqdm(iterable=enumerate(test_dataloader),
+               total=len(test_dataloader),
+               desc=f"Testing Epoch: {epoch}",
+               disable=hide_batch,
+               position=0,
+               leave=True)
+
+    for batch, (X,y) in p_bar:
         X, y = X.to(device), y.to(device)
+        batch+=1
         
         with torch.inference_mode():
             logits = model(X)
@@ -77,6 +80,8 @@ def test_step(model:nn.Module, test_dataloader:torch.utils.data.DataLoader, loss
         test_loss += loss
         test_acc += acc
 
+        p_bar.set_postfix({"test_loss":test_loss.item() / (batch), "test_acc":test_acc.item() / (batch)})
+
     test_loss /= len(test_dataloader)
     test_acc /= len(test_dataloader)
 
@@ -84,11 +89,11 @@ def test_step(model:nn.Module, test_dataloader:torch.utils.data.DataLoader, loss
 
 def train(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_dataloader:torch.utils.data.DataLoader,
           loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int = 5,  device:torch.device = device,
-          writer=None, show_batch=False, lr_scheduler:torch.optim.lr_scheduler=None, track_epoch_time=False):
+          writer=None, lr_scheduler:torch.optim.lr_scheduler=None, track_epoch_time=False, hide_batch=False, hide_epochs=False):
 
     results = {"train_loss":[], "train_acc":[], "test_loss":[], "test_acc":[], "train_epoch_time":[], "test_epoch_time":[]}
-    start_time = timer()
-    for epoch in range(1, epochs+1):
+    for epoch in tqdm(range(1, epochs+1),desc="Epochs", disable=hide_epochs, position=0,
+                      leave=True):
         
         if track_epoch_time:
             train_start=time.time()
@@ -96,9 +101,10 @@ def train(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_da
                                            train_dataloader=train_dataloader, 
                                            loss_fn = loss_fn, 
                                            acc_fn = acc_fn, 
-                                           optimizer = optimizer, 
+                                           optimizer = optimizer,
+                                           epoch=epoch,
                                            device = device,
-                                           show_batch=show_batch)
+                                           hide_batch=hide_batch)
         
         if track_epoch_time:
             train_end=time.time()
@@ -109,7 +115,9 @@ def train(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_da
                                         test_dataloader=test_dataloader, 
                                         loss_fn=loss_fn, 
                                         acc_fn=acc_fn, 
-                                        device=device)
+                                        epoch=epoch,
+                                        device=device,
+                                        hide_batch=hide_batch)
         if track_epoch_time:
             test_end=time.time()
             test_epoch_time=test_end-test_start
@@ -138,8 +146,5 @@ def train(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_da
 
         else:
             pass
-    
-    stop_time = timer()
-    print(f"[INFO]\nDevice: {device}\nTraining time: {stop_time-start_time:.3f}s")
     
     return results
