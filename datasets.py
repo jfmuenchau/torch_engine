@@ -27,8 +27,12 @@ def testfor_dir(path:str):
     else:
         return make_dir(path)
 
-def create_smaller_dataset(source:str, destination:str, num_classes:int, slice_at:int=0.8):
-    """Creates smaller dataset based on source. Picking num_classes random classes and storing the content into train and test directories"""
+def create_smaller_dataset(source:str, destination:str, num_classes:int, slice_at:float=0.8):
+    """Creates smaller dataset based on source. Picking num_classes random classes and storing the content into train and test directories.
+    * source: Path to the source directory that stores the data.
+    * destination: Desired directory to save the smaller dataset.
+    * num_classes: Number of random selected classes for the smaller dataset.
+    * slice_at: Float that sets the split size. For example 0.8 will put 80% of the data inside the directory into the training set."""
     
     class_paths=list(Path(source).glob("*"))
     samples = random.sample(class_paths, k=num_classes)
@@ -62,6 +66,13 @@ def create_smaller_dataset(source:str, destination:str, num_classes:int, slice_a
     return train_dir, test_dir
 
 def create_dataloaders(train_dir:str, test_dir:str, transform:torchvision.transforms=None, batch_size:int=32):
+    """Creates dataloaders from the given train_dir and test_dir with batch size = batch_size. Applies a given transform and returns the train dataloader, 
+    the test dataloader and the classes in form of a list.
+    * train_dir: Path to the train folder. Following structure is desired: train/classes/data
+    * test_dir: Path to the test folder. Following structure is desired: test/classes/data
+    * transform: Gives a transform to be performed. If no transform is selected only ToTensor() will be performed.
+    * batch_size: Batch size of the train and test dataloader. Standard is 32"""
+    
     if not transform:
         transform=torchvision.transforms.ToTensor()
     train_dataset=ImageFolder(root=train_dir, transform=transform)
