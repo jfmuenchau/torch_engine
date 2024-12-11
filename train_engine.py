@@ -9,6 +9,15 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def train_step(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy,
                optimizer:torch.optim, epoch:int, device:torch.device = device, hide_batch=False):
+    """Performs one training step on the model using the train dataloader.
+    * model: torch.nn.Module to be trained.
+    * train_dataloader: Train dataloader that will be used for training.
+    * loss_fn: The loss function that will be used for training.
+    * acc_fn: The accuracy function that will be used for training.
+    * optimizer: A torch.optim.Optimizer that will be used for training.
+    * epoch: The current epoch thats being performed. Can be used to track the time each training step takes.
+    * device: The device that training will be performed on. "cuda"/"cpu"
+    * hide_batch: Whether to hide the batch progress bar or not"""
 
     model.to(device)
     model.train()
@@ -51,6 +60,14 @@ def train_step(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, lo
 
 def test_step(model:nn.Module, test_dataloader:torch.utils.data.DataLoader, loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy,
               epoch:int, device:torch.device = device, hide_batch=False):
+    """Performs one testing step on the model using the train dataloader.
+    * model: torch.nn.Module to be trained.
+    * test_dataloader: Train dataloader that will be used for training.
+    * loss_fn: The loss function that will be used for training.
+    * acc_fn: The accuracy function that will be used for training.
+    * epoch: The current epoch thats being performed. Can be used to track the time each training step takes.
+    * device: The device that training will be performed on. "cuda"/"cpu"
+    * hide_batch: Whether to hide the batch progress bar or not"""
 
     model.to(device)
     model.eval()
@@ -90,6 +107,24 @@ def test_step(model:nn.Module, test_dataloader:torch.utils.data.DataLoader, loss
 def train(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_dataloader:torch.utils.data.DataLoader,
           loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int = 5,  device:torch.device = device,
           writer=None, lr_scheduler:torch.optim.lr_scheduler=None, track_epoch_time=False, hide_batch=False, hide_epochs=False):
+    """Overall training function that makes use of the train() and test() functions and returns the results in form of a dictionary. The function takes many
+    optional parameters that can be used if needed.
+    * model: Model to train.
+    * train_dataloader: Dataloader that holds the training data
+    * test_dataloader: Dataloader that holds the test data
+    * loss_fn: The loss function that will be used throughout training and testing.
+    * acc_fn: The accuracy function that will be used throughout training and testing.
+    * optimizer: Optimizer that will be used for training.
+    * epochs: Number of epochs for training and testing. 
+    * device: Device to train and test on.
+    * writer: Takes an optional SummaryWriter that saves to a given log_dir.
+    * lr_scheduler: Takes an optional learning rate scheduler that will change the learning rate after each training step.
+    * track_epoch: Wether to track the time per epoch.
+    * hide_batch: Wether to hide the progress bar on training and test batches.
+    * hide_epochs: Wether to hide the epochs progress bar.
+    
+    Format of the results_dict: 
+      + results_dict = {"train_loss":[loss values], "train_acc":[accuracy values], "test_loss":[loss values], "test_acc":[accuarcy values]}"""
 
     results = {"train_loss":[], "train_acc":[], "test_loss":[], "test_acc":[], "train_epoch_time":[], "test_epoch_time":[]}
     for epoch in tqdm(range(1, epochs+1),desc="Epochs", disable=hide_epochs, position=0,
