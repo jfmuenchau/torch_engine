@@ -1,7 +1,10 @@
 import torch
 from torch import nn
 class TinyVGG(nn.Module):
-    """Creates TinyVGG model from CNN explainer website"""
+    """Creates TinyVGG model from CNN explainer website
+    * input_shape: Number of colour channels
+    * output_shape: Number of output classes
+    * hidden_units: Number of hidden units. Standard is 10."""
 
     def __init__(self, input_shape, output_shape, hidden_units = 10):
         super().__init__()
