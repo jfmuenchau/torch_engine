@@ -1,9 +1,13 @@
-""" Plot and Save results using matplotlib.pyplot. Saves to target_dir. Save:bool=False. Saving optional"""
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict
 
 def plot_results(results_dict:Dict):
+    """Takes a dictionary and plots loss and accuracy graphs from the given data. Returns a matplotlib.pyplot figure that can be saved.
+    *results_dict: Dictionary that contains the results of the training process. Desired format: 
+    
+        results_dict= {"train_loss":[loss values], "train_acc":[accuracy values], "test_loss":[loss values], "test_acc":[test accuracy]}"""
+    
     num_epochs=len(results_dict["train_loss"])
     epochs=np.arange(1,num_epochs+1)
     figure=plt.figure(figsize=(10,5))
