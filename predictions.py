@@ -7,6 +7,16 @@ import matplotlib.pyplot as plt
 device="cuda" if torch.cuda.is_available() else "cpu"
 
 def pred_plot_image(model:torch.nn.Module,img_path:str,class_names:List[str],img_size:Tuple=None, transform:transforms=None, device:torch.device=device):
+    """Performs predictions on img_path using model and plots the results.
+    * model: Torch nn.Module that has been trained on a certain dataset.
+    * img_path: Path to a single image that will be passed through the model.
+    * class_names: List of class names.
+    * img_size: Image size that should be used on torchvision.transforms.Resize(img_size). Standard is set to None
+    * transform: Transform that needs to be performed in order to perform a forward pass with the model. If not given transform will be set to: 
+        + transforms=torchvision.transforms.Compose([
+            transforms.Resize(img_size),
+            transforms.ToTensor()])
+    * device: Device that should be used to perform predictions."""
     
     img=Image.open(img_path)
     
