@@ -11,6 +11,24 @@ device="cuda" if torch.cuda.is_available() else "cpu"
 def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_dataloader:torch.utils.data.DataLoader,
                 loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int, configs:Dict, device:torch.device = device,
                 hide_batch=False, hide_epochs=False):
+    """
+    Function that will perform training and track loss and accuracy and upload it to the Weights & Biases website. Make sure to call !wandb login [api_key] before running the function.
+      Returns: None
+    model: model for training
+    train_dataloader: the dataloader that is going to be used for training
+    test_dataloader: the dataloader that is goingt to be used for testing
+    loss_fn: loss function
+    acc_fn: accuracy function
+    optimizer: optimizer that optimizes the parameters of the model
+    epochs: number of epochs
+    configs: dictionary containing parameters like epochs, name of the dataset, model architecture or batch size
+      example: configs=dict(epochs=5, "architecture"="CNN", "dataset"="MNIST", batch_size=128)
+
+    device: device used for training
+    hide_batch: hide the batch progressbar. Default=False
+    hide_epochs: hide the epochs progressbar. Default=False
+    """
+                  
     hyperparameters=configs
     with wandb.init(project="pytorch-test", config=hyperparameters):
         wandb.watch(models=model, criterion=loss_fn, log="all", log_freq=1, log_graph=True)
@@ -24,6 +42,10 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
             
 
 def wandb_log(loss, epoch, acc=None):
+    """
+    Function that logs epochs, loss and accuracy (optional) to upload to the Weights & Biases website.
+    """
+  
     if acc:
         wandb.log({"epoch":epoch, "loss":loss, "accuracy":acc})
 
