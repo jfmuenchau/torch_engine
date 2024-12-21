@@ -9,7 +9,8 @@ from tqdm import tqdm
 device="cuda" if torch.cuda.is_available() else "cpu"
 
 def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_dataloader:torch.utils.data.DataLoader,
-                loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int, configs:Dict, device:torch.device = device,
+                loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int, configs:Dict, project_name:str,
+                device:torch.device = device,
                 hide_batch=False, hide_epochs=False):
     """
     Function that will perform training and track loss and accuracy and upload it to the Weights & Biases website. Make sure to call !wandb login [api_key] before running the function.
@@ -23,6 +24,7 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
     epochs: number of epochs
     configs: dictionary containing parameters like epochs, name of the dataset, model architecture or batch size
       example: configs=dict(epochs=5, "architecture"="CNN", "dataset"="MNIST", batch_size=128)
+    project_name: name of the project folder on the Weights & Biases website
 
     device: device used for training
     hide_batch: hide the batch progressbar. Default=False
