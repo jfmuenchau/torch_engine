@@ -2,7 +2,7 @@ import wandb
 import torch
 import torch.nn as nn
 import torchmetrics
-from train_engine import train_step, test_step
+from torch_engine.train_engine import train_step, test_step
 from typing import Dict
 from tqdm import tqdm
 
