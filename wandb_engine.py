@@ -32,7 +32,7 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
     """
                   
     hyperparameters=configs
-    with wandb.init(project="pytorch-test", config=hyperparameters):
+    with wandb.init(project=project_name, config=hyperparameters):
         wandb.watch(models=model, criterion=loss_fn, log="all", log_freq=1, log_graph=True)
         for epoch in tqdm(range(1,epochs+1), desc="Epoch",disable=hide_epochs):
             train_loss, train_acc = train_step(model=model, train_dataloader=train_dataloader, optimizer=optimizer, loss_fn=loss_fn, acc_fn=acc_fn,
