@@ -15,20 +15,23 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
     """
     Function that will perform training and track loss and accuracy and upload it to the Weights & Biases website. Make sure to call !wandb login [api_key] before running the function.
       Returns: None
-    model: model for training
-    train_dataloader: the dataloader that is going to be used for training
-    test_dataloader: the dataloader that is goingt to be used for testing
-    loss_fn: loss function
-    acc_fn: accuracy function
-    optimizer: optimizer that optimizes the parameters of the model
-    epochs: number of epochs
-    configs: dictionary containing parameters like epochs, name of the dataset, model architecture or batch size
-      example: configs=dict(epochs=5, "architecture"="CNN", "dataset"="MNIST", batch_size=128)
-    project_name: name of the project folder on the Weights & Biases website
-
-    device: device used for training
-    hide_batch: hide the batch progressbar. Default=False
-    hide_epochs: hide the epochs progressbar. Default=False
+    * model: model for training
+    * train_dataloader: the dataloader that is going to be used for training
+    * test_dataloader: the dataloader that is goingt to be used for testing
+    * loss_fn: loss function
+    * acc_fn: accuracy function
+    * optimizer: optimizer that optimizes the parameters of the model
+    * epochs: number of epochs
+    * configs: dictionary containing parameters like epochs, name of the dataset, model architecture or batch size
+        example: configs=dict(
+                   "epochs"=5, 
+                   "architecture"="CNN", 
+                   "dataset"="MNIST", 
+                   "batch_size"=128)
+    * project_name: name of the project folder on the Weights & Biases website
+    * device: device used for training
+    * hide_batch: hide the batch progressbar. Default=False
+    * hide_epochs: hide the epochs progressbar. Default=False
     """
                   
     hyperparameters=configs
