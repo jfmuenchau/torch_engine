@@ -5,7 +5,7 @@ import os
 default_root = r"D:\Python\PyTorch\models"
 
 def save_model(model:torch.nn.Module,model_name:str, path:str=default_root, extra:str=None, state_dict=True, jit_script=False):
-    """Saves a model to the given path. The function makes sure that giving the same model name twice wont leed to losing older files by adding extra tag (n) n=1,2,3,4....
+    """Saves a model to the given path. The function makes sure that giving the same model name twice wont leed to losing older files by adding extra tag (n) n=1,2,3,4
     * model: Torch nn.Module that needs to be saved.
     * model_name: Name of the model sets name of the folder its gonna be saved to.
     * path: Path to save the model to. Default is set to "D:\Python\PyTorch\models"
