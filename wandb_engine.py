@@ -9,9 +9,8 @@ from tqdm import tqdm
 device="cuda" if torch.cuda.is_available() else "cpu"
 
 def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, test_dataloader:torch.utils.data.DataLoader,
-                loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int, configs:Dict, project_name:str,
-                device:torch.device = device,
-                hide_batch=False, hide_epochs=False):
+                loss_fn:nn.Module, acc_fn:torchmetrics.Accuracy, optimizer:torch.optim, epochs:int, configs:Dict, project_name:str, 
+                scheduler:torch.optim.lr_scheduler=None, device:torch.device = device, hide_batch=False, hide_epochs=False):
     """
     Function that will perform training and track loss and accuracy and upload it to the Weights & Biases website. Make sure to call !wandb login [api_key] before running the function.
       Returns: None
@@ -29,6 +28,7 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
                    "dataset"="MNIST", 
                    "batch_size"=128)
     * project_name: name of the project folder on the Weights & Biases website
+    * scheduler: optional learning rate scheduler. Default=None
     * device: device used for training
     * hide_batch: hide the batch progressbar. Default=False
     * hide_epochs: hide the epochs progressbar. Default=False
@@ -41,11 +41,13 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
             train_loss, train_acc = train_step(model=model, train_dataloader=train_dataloader, optimizer=optimizer, loss_fn=loss_fn, acc_fn=acc_fn,
                                                epoch=epoch, hide_batch=hide_batch)
             wandb_log(loss=train_loss, epoch=epoch, acc=train_acc)
+            if scheduler:
+              wandb.log({"learning_rate":scheduler.get_last_lr()[0]})
+              scheduler.step()
 
             test_loss, test_acc = test_step(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn, acc_fn=acc_fn, 
                                             epoch=epoch, hide_batch=hide_batch)
             
-
 def wandb_log(loss, epoch, acc=None):
     """
     Function that logs epochs, loss and accuracy (optional) to upload to the Weights & Biases website.
