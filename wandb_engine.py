@@ -44,25 +44,25 @@ def train_wandb(model:nn.Module, train_dataloader:torch.utils.data.DataLoader, t
             test_loss, test_acc = test_step(model=model, test_dataloader=test_dataloader, loss_fn=loss_fn, acc_fn=acc_fn, 
                                             epoch=epoch, hide_batch=hide_batch)
             if scheduler:
-              wandb_log(train_loss=train_loss, train_acc=train_acc,
+              wandb_log(epoch=epoch, train_loss=train_loss, train_acc=train_acc,
                         test_loss=test_loss, test_acc=test_acc, lr=scheduler.get_last_lr()[0])
               scheduler.step()
           
             else:
-              wandb_log(train_loss=train_loss, train_acc=train_acc,
+              wandb_log(epoch=epoch, train_loss=train_loss, train_acc=train_acc,
                         test_loss=test_loss, test_acc=test_acc)
 
 
 
-def wandb_log(train_loss , train_acc, test_loss, test_acc, lr=None):
+def wandb_log(epoch, train_loss , train_acc, test_loss, test_acc, lr=None):
     """
     Function that logs epochs, loss and accuracy (optional) to upload to the Weights & Biases website.
     """
   
     if lr:
         wandb.log({"train/loss":train_loss, "train/accuracy":train_acc,
-                   "test/loss":test_loss, "test/accuracy":test_acc, "learning_rate":lr})
+                   "test/loss":test_loss, "test/accuracy":test_acc, "learning_rate":lr}, step=epoch)
 
     else:
         wandb.log({"train/loss":train_loss, "train/accuracy":train_acc,
-                   "test/loss":test_loss, "test/accuracy":test_acc, "lr":lr})
+                   "test/loss":test_loss, "test/accuracy":test_acc, "lr":lr}, step=epoch)
